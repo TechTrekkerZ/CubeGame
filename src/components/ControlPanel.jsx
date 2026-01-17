@@ -246,12 +246,15 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
   }
 
   const saveRecord = () => {
-    if (timer <= 0) return
+    if (!hasTimerStarted) {
+      alert('请先开始游戏')
+      return
+    }
     if (hasSavedResult) return
 
     const record = {
       id: Date.now(),
-      timeSeconds: timer,
+      timeSeconds: Math.max(0, timer),
       moves: solveMoveCount,
       finishedAt: new Date().toISOString(),
       scramble: scrambleSequence
