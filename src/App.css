@@ -25,12 +25,9 @@
 }
 
 @media (max-width: 767px) {
-  .app {
-    padding-bottom: 60px; /* 为底部控制面板预留空间 */
-  }
-
   .canvas-container {
-    height: calc(100vh - 60px);
+    flex: none;
+    height: 55vh;
   }
 }
 

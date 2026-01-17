@@ -123,24 +123,53 @@
   margin-bottom: 20px;
 }
 
-.moves-grid {
+/* 十字操作面板：
+   .  U  U' .
+   L  F  F' R
+   L' B  B' R'
+   .  D  D' .
+*/
+.moves-pad {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-areas:
+    ". u up ."
+    "l f fp r"
+    "lp b bp rp"
+    ". d dp .";
   gap: 8px;
+  justify-items: center;
+  align-items: center;
 }
 
 .btn-move {
   background: white;
   color: #667eea;
   border: 2px solid #667eea;
-  padding: 10px;
+  padding: 8px 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
+  width: 70px;
+  height: 50px;
+  justify-content: center;
 }
+
+.move-u { grid-area: u; }
+.move-up { grid-area: up; }
+.move-l { grid-area: l; }
+.move-lp { grid-area: lp; }
+.move-r { grid-area: r; }
+.move-rp { grid-area: rp; }
+.move-f { grid-area: f; }
+.move-fp { grid-area: fp; }
+.move-b { grid-area: b; }
+.move-bp { grid-area: bp; }
+.move-d { grid-area: d; }
+.move-dp { grid-area: dp; }
 
 .btn-move:hover {
   background: #667eea;
@@ -148,7 +177,7 @@
 }
 
 .move-label {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: normal;
   opacity: 0.8;
 }
@@ -209,15 +238,12 @@
 
 @media (max-width: 767px) {
   .control-panel {
-    max-height: 50vh;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 10;
-    border-radius: 20px 20px 0 0;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
-    padding: 15px;
+    max-height: none;
+    height: 45vh;
+    position: relative;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 14px;
   }
 
   .control-panel h2 {
@@ -244,16 +270,16 @@
     min-height: 44px; /* iOS推荐的最小触摸目标 */
   }
 
-  .moves-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .moves-pad {
     gap: 6px;
   }
 
   .btn-move {
     font-size: 16px;
-    padding: 12px 8px;
-    min-height: 50px;
-    border-radius: 8px;
+    padding: 10px 6px;
+    width: 70px;
+    height: 50px;
+    border-radius: 10px;
   }
 
   .move-label {

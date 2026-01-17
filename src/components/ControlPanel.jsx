@@ -110,6 +110,125 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
     <div className="control-panel">
       <h2>魔方控制</h2>
 
+      <div className="moves-section">
+        <h3>旋转操作</h3>
+        <div className="moves-pad">
+          <button
+            onClick={() => handleMove('U')}
+            className="btn btn-move move-u"
+            disabled={isAnimating}
+            aria-label={MOVES['U']}
+          >
+            U
+            <span className="move-label">{MOVES['U']}</span>
+          </button>
+          <button
+            onClick={() => handleMove("U'")}
+            className="btn btn-move move-up"
+            disabled={isAnimating}
+            aria-label={MOVES["U'"]}
+          >
+            U'
+            <span className="move-label">{MOVES["U'"]}</span>
+          </button>
+
+          <button
+            onClick={() => handleMove('L')}
+            className="btn btn-move move-l"
+            disabled={isAnimating}
+            aria-label={MOVES['L']}
+          >
+            L
+            <span className="move-label">{MOVES['L']}</span>
+          </button>
+          <button
+            onClick={() => handleMove("L'")}
+            className="btn btn-move move-lp"
+            disabled={isAnimating}
+            aria-label={MOVES["L'"]}
+          >
+            L'
+            <span className="move-label">{MOVES["L'"]}</span>
+          </button>
+
+          <button
+            onClick={() => handleMove('R')}
+            className="btn btn-move move-r"
+            disabled={isAnimating}
+            aria-label={MOVES['R']}
+          >
+            R
+            <span className="move-label">{MOVES['R']}</span>
+          </button>
+          <button
+            onClick={() => handleMove("R'")}
+            className="btn btn-move move-rp"
+            disabled={isAnimating}
+            aria-label={MOVES["R'"]}
+          >
+            R'
+            <span className="move-label">{MOVES["R'"]}</span>
+          </button>
+
+          <button
+            onClick={() => handleMove('F')}
+            className="btn btn-move move-f"
+            disabled={isAnimating}
+            aria-label={MOVES['F']}
+          >
+            F
+            <span className="move-label">{MOVES['F']}</span>
+          </button>
+          <button
+            onClick={() => handleMove("F'")}
+            className="btn btn-move move-fp"
+            disabled={isAnimating}
+            aria-label={MOVES["F'"]}
+          >
+            F'
+            <span className="move-label">{MOVES["F'"]}</span>
+          </button>
+
+          <button
+            onClick={() => handleMove('B')}
+            className="btn btn-move move-b"
+            disabled={isAnimating}
+            aria-label={MOVES['B']}
+          >
+            B
+            <span className="move-label">{MOVES['B']}</span>
+          </button>
+          <button
+            onClick={() => handleMove("B'")}
+            className="btn btn-move move-bp"
+            disabled={isAnimating}
+            aria-label={MOVES["B'"]}
+          >
+            B'
+            <span className="move-label">{MOVES["B'"]}</span>
+          </button>
+
+          <button
+            onClick={() => handleMove('D')}
+            className="btn btn-move move-d"
+            disabled={isAnimating}
+            aria-label={MOVES['D']}
+          >
+            D
+            <span className="move-label">{MOVES['D']}</span>
+          </button>
+          <button
+            onClick={() => handleMove("D'")}
+            className="btn btn-move move-dp"
+            disabled={isAnimating}
+            aria-label={MOVES["D'"]}
+          >
+            D'
+            <span className="move-label">{MOVES["D'"]}</span>
+          </button>
+        </div>
+      </div>
+
       {/* 计时器显示 */}
       <div className="timer-section">
         <div className={`timer ${isSolved ? 'solved' : ''} ${isTimerRunning ? 'running' : ''}`}>
@@ -152,23 +271,6 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
         >
           📁 加载状态
         </button>
-      </div>
-
-      <div className="moves-section">
-        <h3>旋转操作</h3>
-        <div className="moves-grid">
-          {Object.entries(MOVES).map(([move, label]) => (
-            <button
-              key={move}
-              onClick={() => handleMove(move)}
-              className="btn btn-move"
-              disabled={isAnimating}
-            >
-              {move}
-              <span className="move-label">{label}</span>
-            </button>
-          ))}
-        </div>
       </div>
 
       {moveHistory.length > 0 && (
