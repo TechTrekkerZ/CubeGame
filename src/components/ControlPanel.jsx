@@ -420,19 +420,19 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
             onClick={() => handleMove("U'")}
             className="btn btn-move move-up"
             disabled={isAnimating}
-            aria-label={MOVES['U']}
+            aria-label={MOVES["U'"]}
           >
-            U
-            <span className="move-label">{MOVES['U']}</span>
+            U'
+            <span className="move-label">{MOVES["U'"]}</span>
           </button>
           <button
             onClick={() => handleMove("U")}
             className="btn btn-move move-u"
             disabled={isAnimating}
-            aria-label={MOVES["U'"]}
+            aria-label={MOVES["U"]}
           >
-            U'
-            <span className="move-label">{MOVES["U'"]}</span>
+            U
+            <span className="move-label">{MOVES["U"]}</span>
           </button>
 
           <button
@@ -458,19 +458,19 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
             onClick={() => handleMove("R'")}
             className="btn btn-move move-rp"
             disabled={isAnimating}
-            aria-label={MOVES['R']}
+            aria-label={MOVES["R'"]}
           >
-            R
-            <span className="move-label">{MOVES['R']}</span>
+            R'
+            <span className="move-label">{MOVES["R'"]}</span>
           </button>
           <button
             onClick={() => handleMove("R")}
             className="btn btn-move move-r"
             disabled={isAnimating}
-            aria-label={MOVES["R'"]}
+            aria-label={MOVES["R"]}
           >
-            R'
-            <span className="move-label">{MOVES["R'"]}</span>
+            R
+            <span className="move-label">{MOVES["R"]}</span>
           </button>
 
           <button
