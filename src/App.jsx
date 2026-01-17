@@ -133,13 +133,16 @@ function App() {
 
             // 整体提亮：启用更友好的 tone mapping 并提高曝光
             gl.toneMapping = THREE.ACESFilmicToneMapping
-            gl.toneMappingExposure = 1.15
+            gl.toneMappingExposure = 1.0
           }}
         >
           <PerspectiveCamera makeDefault position={[5, 5, 5]} />
+          {/* 更均匀的补光，让六个面亮度更接近 */}
           <ambientLight intensity={0.75} />
-          <directionalLight position={[10, 10, 5]} intensity={1.45} />
-          <pointLight position={[-10, -10, -5]} intensity={0.8} />
+          <hemisphereLight intensity={0.45} />
+          <directionalLight position={[10, 10, 5]} intensity={0.8} />
+          <directionalLight position={[-10, 10, -5]} intensity={0.8} />
+          <pointLight position={[-10, -10, -5]} intensity={0.25} />
           <RubiksCube
             cubeState={cubeState}
             isAnimating={isAnimating}

@@ -1,6 +1,9 @@
-import { useRef, useMemo } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useRef, useMemo, useEffect } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2.js'
+import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial.js'
+import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry.js'
 
 const COLORS = {
   white: '#ffffff',
@@ -14,52 +17,72 @@ const COLORS = {
 
 // 创建单个小方块
 function Cubelet({ position, colors, onDoubleClick }) {
+  const { size } = useThree()
+
   const geometry = useMemo(() => new THREE.BoxGeometry(0.9, 0.9, 0.9), [])
 
+  const thickEdges = useMemo(() => {
+    const edges = new THREE.EdgesGeometry(geometry, 1)
+    const g = new LineSegmentsGeometry()
+    g.setPositions(edges.attributes.position.array)
+
+    const m = new LineMaterial({
+      color: new THREE.Color('#111111'),
+      transparent: true,
+      opacity: 0.95,
+      // NOTE: this is in screen-space (px) when resolution is set
+      linewidth: 9.5
+    })
+
+    const line = new LineSegments2(g, m)
+    line.computeLineDistances()
+    line.scale.set(1.01, 1.01, 1.01)
+    return { line, material: m, geometry: g, edges }
+  }, [geometry])
+
+  useEffect(() => {
+    thickEdges.material.resolution.set(size.width, size.height)
+  }, [size.width, size.height, thickEdges])
+
+  useEffect(() => {
+    return () => {
+      thickEdges.geometry.dispose()
+      thickEdges.edges.dispose()
+      thickEdges.material.dispose()
+    }
+  }, [thickEdges])
+
   const materials = useMemo(() => {
+    const makeMat = (color) =>
+      new THREE.MeshStandardMaterial({
+        color,
+        metalness: 0,
+        roughness: 0.9,
+        emissive: color,
+        emissiveIntensity: 0.08
+      })
+
     return [
-      new THREE.MeshStandardMaterial({
-        color: colors.right || COLORS.black,
-        metalness: 0.3,
-        roughness: 0.4
-      }), // right
-      new THREE.MeshStandardMaterial({
-        color: colors.left || COLORS.black,
-        metalness: 0.3,
-        roughness: 0.4
-      }), // left
-      new THREE.MeshStandardMaterial({
-        color: colors.top || COLORS.black,
-        metalness: 0.3,
-        roughness: 0.4
-      }), // top
-      new THREE.MeshStandardMaterial({
-        color: colors.bottom || COLORS.black,
-        metalness: 0.3,
-        roughness: 0.4
-      }), // bottom
-      new THREE.MeshStandardMaterial({
-        color: colors.front || COLORS.black,
-        metalness: 0.3,
-        roughness: 0.4
-      }), // front
-      new THREE.MeshStandardMaterial({
-        color: colors.back || COLORS.black,
-        metalness: 0.3,
-        roughness: 0.4
-      }) // back
+      makeMat(colors.right || COLORS.black), // right
+      makeMat(colors.left || COLORS.black), // left
+      makeMat(colors.top || COLORS.black), // top
+      makeMat(colors.bottom || COLORS.black), // bottom
+      makeMat(colors.front || COLORS.black), // front
+      makeMat(colors.back || COLORS.black) // back
     ]
   }, [colors])
 
   return (
-    <mesh
-      position={position}
-      geometry={geometry}
-      material={materials}
-      castShadow
-      receiveShadow
-      onDoubleClick={onDoubleClick}
-    />
+    <group position={position}>
+      <mesh
+        geometry={geometry}
+        material={materials}
+        castShadow
+        receiveShadow
+        onDoubleClick={onDoubleClick}
+      />
+      <primitive object={thickEdges.line} />
+    </group>
   )
 }
 
