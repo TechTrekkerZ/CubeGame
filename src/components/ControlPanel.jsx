@@ -174,6 +174,13 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
   }
 
   const handleTimerClick = () => {
+    // 正在计时：点击即暂停，并直接展示“继续/完成”
+    if (isTimerRunning && !isTimerFinished) {
+      setIsTimerRunning(false)
+      setShowTimerActions(true)
+      return
+    }
+
     // 已展开则再次点击收起
     if (showTimerActions) {
       setShowTimerActions(false)
@@ -190,9 +197,9 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
     setShowTimerActions(true)
   }
 
-  const pauseTimer = () => {
+  const pauseTimer = ({ keepActionsOpen = false } = {}) => {
     setIsTimerRunning(false)
-    setShowTimerActions(false)
+    setShowTimerActions(keepActionsOpen)
   }
 
   const finishTimer = () => {
@@ -237,7 +244,7 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
     // - 'same': 恢复本轮初始状态（同一个 scramble）
     // - 'newScramble': 生成新的 scramble
     if (mode === 'newScramble') {
-      scramble()
+      startGame()
       return
     }
 
@@ -253,6 +260,27 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
     setHasSavedResult(false)
     setTimer(0)
     setStartTime(null)
+    setTimeout(() => setIsAnimating(false), 100)
+  }
+
+  const restartSameAndStart = () => {
+    if (isAnimating) return
+
+    setIsAnimating(true)
+    const base = roundStartCube ? cloneCube(roundStartCube) : cloneCube(cubeState)
+    setCubeState(base)
+    setMoveHistory([])
+    setIsTimerFinished(false)
+    setShowTimerActions(false)
+    setSolveMoveCount(0)
+    setHasSavedResult(false)
+    setTimer(0)
+
+    const now = Date.now()
+    setStartTime(now)
+    setIsTimerRunning(true)
+    setHasTimerStarted(true)
+
     setTimeout(() => setIsAnimating(false), 100)
   }
 
@@ -289,7 +317,7 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
                   type="button"
                   className="timer-action-btn"
                   onClick={() => {
-                    if (isTimerRunning) pauseTimer()
+                    if (isTimerRunning) pauseTimer({ keepActionsOpen: true })
                     else {
                       setShowTimerActions(false)
                       startOrResumeTimer()
@@ -297,6 +325,13 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
                   }}
                 >
                   {isTimerRunning ? '暂停' : '继续'}
+                </button>
+                <button
+                  type="button"
+                  className="timer-action-btn"
+                  onClick={restartSameAndStart}
+                >
+                  重开
                 </button>
                 <button
                   type="button"
@@ -527,10 +562,8 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
       <div className="info-section">
         <p>💡 提示：</p>
         <ul>
-          <li>拖动鼠标/触摸旋转视角</li>
-          <li>滚轮/双指缩放</li>
-          <li>点击按钮旋转魔方</li>
-          <li className="mobile-only">📱 移动端优化体验</li>
+          <li>触摸/拖动鼠标旋转视角</li>
+          <li>双指/滚轮缩放</li>
         </ul>
       </div>
     </div>
