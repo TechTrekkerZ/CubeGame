@@ -19,10 +19,30 @@ const MOVES = {
 
 export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, setAnimationData, initialCube, isAnimating, onSaveState, onLoadState }) {
   const [moveHistory, setMoveHistory] = useState([])
+  const [scrambleSequence, setScrambleSequence] = useState([])
+  const [roundStartCube, setRoundStartCube] = useState(null)
   const [timer, setTimer] = useState(0) // 计时器时间（秒）
   const [isTimerRunning, setIsTimerRunning] = useState(false)
   const [startTime, setStartTime] = useState(null)
+  const [isTimerFinished, setIsTimerFinished] = useState(false)
+  const [showTimerActions, setShowTimerActions] = useState(false)
+  const [hasTimerStarted, setHasTimerStarted] = useState(false)
+  const [solveMoveCount, setSolveMoveCount] = useState(0)
+  const [records, setRecords] = useState([])
+  const [hasSavedResult, setHasSavedResult] = useState(false)
   const [isSolved, setIsSolved] = useState(true) // 初始状态为已解决
+
+  const cloneCube = (cube) => JSON.parse(JSON.stringify(cube))
+
+  // 战绩（本地存储）
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('rubiks-cube-records')
+      if (raw) setRecords(JSON.parse(raw))
+    } catch {
+      // ignore
+    }
+  }, [])
 
   // 计时器逻辑
   useEffect(() => {
@@ -41,19 +61,27 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
   useEffect(() => {
     const solved = isCubeSolved(cubeState)
     setIsSolved(solved)
-    if (solved && isTimerRunning) {
+    // 仅在“确实进行过操作”后，复原时自动停表
+    if (solved && isTimerRunning && moveHistory.length > 0) {
       setIsTimerRunning(false)
     }
-  }, [cubeState, isTimerRunning])
+  }, [cubeState, isTimerRunning, moveHistory.length])
 
   const scramble = () => {
     setIsAnimating(true)
-    const { cube: scrambledCube, sequence } = scrambleCube(cubeState, 20)
-    setMoveHistory(sequence)
+    const { cube: scrambledCube, sequence } = scrambleCube(initialCube, 20)
+    setScrambleSequence(sequence)
+    setMoveHistory([])
+    setRoundStartCube(scrambledCube)
     // 直接设置最终状态，跳过动画
     setCubeState(scrambledCube)
     setIsSolved(false)
     setIsTimerRunning(false)
+    setIsTimerFinished(false)
+    setShowTimerActions(false)
+    setHasTimerStarted(false)
+    setSolveMoveCount(0)
+    setHasSavedResult(false)
     setTimer(0)
     setStartTime(null)
     setTimeout(() => {
@@ -65,8 +93,15 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
     setIsAnimating(true)
     setCubeState(initialCube)
     setMoveHistory([])
+    setScrambleSequence([])
+    setRoundStartCube(null)
     setIsSolved(true)
     setIsTimerRunning(false)
+    setIsTimerFinished(false)
+    setShowTimerActions(false)
+    setHasTimerStarted(false)
+    setSolveMoveCount(0)
+    setHasSavedResult(false)
     setTimer(0)
     setStartTime(null)
     setTimeout(() => {
@@ -80,11 +115,8 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
     setIsAnimating(true)
     const newCube = performMove(cubeState, move)
     setMoveHistory([...moveHistory, move])
-
-    // 如果这是第一次移动且魔方未解决，启动计时器
-    if (!isTimerRunning && !isSolved && moveHistory.length === 0) {
-      setStartTime(Date.now())
-      setIsTimerRunning(true)
+    if (hasTimerStarted) {
+      setSolveMoveCount((c) => c + 1)
     }
 
     // 启动动画
@@ -99,6 +131,103 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
     })
   }
 
+  const startOrResumeTimer = () => {
+    const baseMs = timer * 1000
+    setStartTime(Date.now() - baseMs)
+    setIsTimerRunning(true)
+    setHasTimerStarted(true)
+    setHasSavedResult(false)
+    setIsTimerFinished(false)
+
+    // 如果本轮还没有“初始状态”，以第一次开始计时的状态为准
+    if (!roundStartCube) {
+      setRoundStartCube(cloneCube(cubeState))
+    }
+  }
+
+  const handleTimerClick = () => {
+    // 已展开则再次点击收起
+    if (showTimerActions) {
+      setShowTimerActions(false)
+      return
+    }
+
+    // 初始态：直接开始
+    if (timer === 0 && !isTimerRunning && !isTimerFinished) {
+      startOrResumeTimer()
+      return
+    }
+
+    // 已经开始过：点击弹出“暂停/继续/完成”选择
+    setShowTimerActions(true)
+  }
+
+  const pauseTimer = () => {
+    setIsTimerRunning(false)
+    setShowTimerActions(false)
+  }
+
+  const finishTimer = () => {
+    setIsTimerRunning(false)
+    setIsTimerFinished(true)
+    // 直接展示“完成后”的结果面板（保存战绩 / 再来一次 / 下一关）
+    setShowTimerActions(true)
+  }
+
+  const saveRecord = () => {
+    if (timer <= 0) return
+    if (hasSavedResult) return
+
+    const record = {
+      id: Date.now(),
+      timeSeconds: timer,
+      moves: solveMoveCount,
+      finishedAt: new Date().toISOString(),
+      scramble: scrambleSequence
+    }
+    const next = [record, ...records].slice(0, 20)
+    setRecords(next)
+    setHasSavedResult(true)
+    try {
+      localStorage.setItem('rubiks-cube-records', JSON.stringify(next))
+    } catch {
+      // ignore
+    }
+  }
+
+  const clearRecords = () => {
+    setRecords([])
+    try {
+      localStorage.removeItem('rubiks-cube-records')
+    } catch {
+      // ignore
+    }
+  }
+
+  const restartNewRound = (mode) => {
+    // mode:
+    // - 'same': 恢复本轮初始状态（同一个 scramble）
+    // - 'newScramble': 生成新的 scramble
+    if (mode === 'newScramble') {
+      scramble()
+      return
+    }
+
+    setIsAnimating(true)
+    const base = roundStartCube ? cloneCube(roundStartCube) : cloneCube(cubeState)
+    setCubeState(base)
+    setMoveHistory([])
+    setIsTimerRunning(false)
+    setIsTimerFinished(false)
+    setShowTimerActions(false)
+    setHasTimerStarted(false)
+    setSolveMoveCount(0)
+    setHasSavedResult(false)
+    setTimer(0)
+    setStartTime(null)
+    setTimeout(() => setIsAnimating(false), 100)
+  }
+
   // 格式化时间显示
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60)
@@ -108,8 +237,7 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
 
   return (
     <div className="control-panel">
-      <h2>魔方控制</h2>
-
+      {/* <h2>魔方控制</h2> */}
       <div className="moves-section">
         <h3>旋转操作</h3>
         <div className="moves-pad">
@@ -230,14 +358,96 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
       </div>
 
       {/* 计时器显示 */}
-      <div className="timer-section">
-        <div className={`timer ${isSolved ? 'solved' : ''} ${isTimerRunning ? 'running' : ''}`}>
-          {formatTime(timer)}
+      <div
+        className="timer-section"
+        role="button"
+        tabIndex={0}
+        onClick={handleTimerClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') handleTimerClick()
+        }}
+        aria-label={timer === 0 && !isTimerRunning && !isTimerFinished ? '开始计时' : '计时选项'}
+      >
+        <div className={`timer ${isTimerRunning ? 'running' : ''}`}>
+          {timer === 0 && !isTimerRunning && !isTimerFinished ? '开始计时' : formatTime(timer)}
         </div>
-        {isSolved && timer > 0 && (
+
+        {showTimerActions && (
+          <div className="timer-actions" onClick={(e) => e.stopPropagation()}>
+            {!isTimerFinished ? (
+              <>
+                <button
+                  type="button"
+                  className="timer-action-btn"
+                  onClick={() => {
+                    if (isTimerRunning) pauseTimer()
+                    else {
+                      setShowTimerActions(false)
+                      startOrResumeTimer()
+                    }
+                  }}
+                >
+                  {isTimerRunning ? '暂停' : '继续'}
+                </button>
+                <button
+                  type="button"
+                  className="timer-action-btn timer-action-finish"
+                  onClick={finishTimer}
+                >
+                  完成
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="timer-action-btn timer-action-save"
+                  onClick={saveRecord}
+                >
+                  {hasSavedResult ? '已保存' : '保存战绩'}
+                </button>
+                <button
+                  type="button"
+                  className="timer-action-btn timer-action-finish"
+                  onClick={() => restartNewRound('same')}
+                >
+                  再来一次
+                </button>
+                <button
+                  type="button"
+                  className="timer-action-btn"
+                  onClick={() => restartNewRound('newScramble')}
+                >
+                  下一关
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
+        {isTimerFinished && (
           <div className="solved-message">🎉 恭喜完成！</div>
         )}
       </div>
+
+      {records.length > 0 && (
+        <div className="records-section">
+          <div className="records-header">
+            <h3>战绩</h3>
+            <button type="button" className="records-clear" onClick={clearRecords}>
+              清空
+            </button>
+          </div>
+          <div className="records-list">
+            {records.slice(0, 5).map((r) => (
+              <div key={r.id} className="record-item">
+                <span className="record-time">{formatTime(r.timeSeconds)}</span>
+                <span className="record-meta">步数 {r.moves}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="button-group">
         <button
