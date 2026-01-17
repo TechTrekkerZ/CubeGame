@@ -1,0 +1,316 @@
+.control-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  overflow-y: auto;
+  max-height: 100vh;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.control-panel h2 {
+  color: #667eea;
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-align: center;
+}
+
+.timer-section {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.timer {
+  font-size: 36px;
+  font-weight: bold;
+  color: white;
+  font-family: 'Courier New', monospace;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.timer.running {
+  animation: pulse 1s infinite;
+}
+
+.timer.solved {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.solved-message {
+  color: white;
+  font-size: 14px;
+  margin-top: 8px;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.control-panel h3 {
+  color: #764ba2;
+  margin: 20px 0 10px 0;
+  font-size: 18px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  flex: 1;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+  flex: 1;
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  flex: 1;
+}
+
+.btn-load {
+  background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+  color: white;
+  flex: 1;
+}
+
+.moves-section {
+  margin-bottom: 20px;
+}
+
+.moves-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.btn-move {
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.btn-move:hover {
+  background: #667eea;
+  color: white;
+}
+
+.move-label {
+  font-size: 10px;
+  font-weight: normal;
+  opacity: 0.8;
+}
+
+.history-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.history-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.history-item {
+  background: #667eea;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.info-section {
+  padding: 15px;
+  background: #e7f3ff;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.info-section p {
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #667eea;
+}
+
+.info-section ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.info-section li {
+  padding: 4px 0;
+  color: #555;
+  font-size: 14px;
+}
+
+.info-section li:before {
+  content: "• ";
+  color: #667eea;
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+@media (max-width: 767px) {
+  .control-panel {
+    max-height: 50vh;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    padding: 15px;
+  }
+
+  .control-panel h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  .timer-section {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+
+  .timer {
+    font-size: 28px;
+  }
+
+  .button-group {
+    margin-bottom: 15px;
+  }
+
+  .btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    min-height: 44px; /* iOS推荐的最小触摸目标 */
+  }
+
+  .moves-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .btn-move {
+    font-size: 16px;
+    padding: 12px 8px;
+    min-height: 50px;
+    border-radius: 8px;
+  }
+
+  .move-label {
+    font-size: 10px;
+  }
+
+  .history-section {
+    padding: 12px;
+    margin-bottom: 15px;
+  }
+
+  .history-list {
+    gap: 4px;
+  }
+
+  .history-item {
+    padding: 3px 6px;
+    font-size: 11px;
+  }
+
+  .info-section {
+    padding: 12px;
+  }
+
+  .info-section li {
+    font-size: 13px;
+    padding: 2px 0;
+  }
+
+  .mobile-only {
+    color: #ff6b6b;
+    font-weight: 600;
+  }
+}
+
+/* 改善触摸设备的按钮反馈 */
+@media (pointer: coarse) {
+  .btn {
+    min-height: 44px;
+    transition: all 0.1s ease;
+  }
+
+  .btn:active {
+    transform: scale(0.98);
+    transition: all 0.1s ease;
+  }
+
+  .btn-move:active {
+    background: #5a67d8;
+    transform: scale(0.95);
+  }
+
+  .btn-primary:active {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+  }
+
+  .btn-secondary:active {
+    background: #5a6c7d;
+  }
+}
