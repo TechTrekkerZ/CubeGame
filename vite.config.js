@@ -8,5 +8,5 @@ export default defineConfig({
     // 暂时禁用PWA插件以解决构建问题
     // VitePWA({...})
   ],
-  base: '/'
+  base: '/CubeGame/'
 })
