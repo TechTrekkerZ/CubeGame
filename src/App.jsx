@@ -74,6 +74,14 @@ function App() {
   const [orientation, setOrientation] = useState(DEFAULT_ORIENTATION)
 
   const handleSetLogicalFront = (worldNormal) => {
+    if (sameVec(worldNormal, V.YP)) {
+      alert('这是顶面无法置为正面，换一个面吧')
+      return
+    }
+    if (sameVec(worldNormal, V.YN)) {
+      alert('这是底面无法置为正面，换一个面吧')
+      return
+    }
     setOrientation((prev) => pickOrientationWithFront(prev, worldNormal))
   }
 
