@@ -51,7 +51,7 @@ npm run preview
 
 ## 部署到 GitHub Pages
 
-1. 确保 `vite.config.js` 中的 `base` 设置为你的仓库名称（例如：`/CubeGames/`）
+1. 确保 `vite.config.js` 中的 `base` 设置为你的仓库名称（例如：`/CubeGame/`）
 
 2. 构建项目：
 ```bash

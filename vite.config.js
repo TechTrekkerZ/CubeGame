@@ -8,5 +8,6 @@ export default defineConfig({
     // 暂时禁用PWA插件以解决构建问题
     // VitePWA({...})
   ],
+  // GitHub Pages 仓库站点路径： https://<user>.github.io/CubeGame/
   base: '/CubeGame/'
 })
