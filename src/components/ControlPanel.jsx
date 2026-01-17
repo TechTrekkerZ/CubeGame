@@ -546,24 +546,12 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
         </button>
       </div>
 
-      {moveHistory.length > 0 && (
-        <div className="history-section">
-          <h3>操作历史</h3>
-          <div className="history-list">
-            {moveHistory.map((move, index) => (
-              <span key={index} className="history-item">
-                {move}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div className="info-section">
         <p>💡 提示：</p>
         <ul>
           <li>触摸/拖动鼠标旋转视角</li>
           <li>双指/滚轮缩放</li>
+          <li>技术支持：zhouxnli@szu.edu.cn</li>
         </ul>
       </div>
     </div>

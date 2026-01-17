@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
+import * as THREE from 'three'
 import RubiksCube from './components/RubiksCube'
 import ControlPanel from './components/ControlPanel'
 import { initializeCube } from './utils/cubeLogic'
@@ -65,12 +66,16 @@ function App() {
           onCreated={({ gl }) => {
             // 改善移动端渲染
             gl.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+            // 整体提亮：启用更友好的 tone mapping 并提高曝光
+            gl.toneMapping = THREE.ACESFilmicToneMapping
+            gl.toneMappingExposure = 1.15
           }}
         >
           <PerspectiveCamera makeDefault position={[5, 5, 5]} />
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={1} />
-          <pointLight position={[-10, -10, -5]} intensity={0.5} />
+          <ambientLight intensity={0.75} />
+          <directionalLight position={[10, 10, 5]} intensity={1.45} />
+          <pointLight position={[-10, -10, -5]} intensity={0.8} />
           <RubiksCube
             cubeState={cubeState}
             isAnimating={isAnimating}
