@@ -17,7 +17,7 @@ const MOVES = {
   "B'": '后面逆时针'
 }
 
-export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, setAnimationData, initialCube, isAnimating, onSaveState, onLoadState }) {
+export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, setAnimationData, initialCube, isAnimating, onSaveState, onLoadState, orientation }) {
   const [moveHistory, setMoveHistory] = useState([])
   const [scrambleSequence, setScrambleSequence] = useState([])
   const [roundStartCube, setRoundStartCube] = useState(null)
@@ -33,6 +33,40 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
   const [isSolved, setIsSolved] = useState(true) // 初始状态为已解决
 
   const cloneCube = (cube) => JSON.parse(JSON.stringify(cube))
+
+  const toWorldFace = (vec) => {
+    const [x, y, z] = vec
+    if (x === 1) return 'R'
+    if (x === -1) return 'L'
+    if (y === 1) return 'U'
+    if (y === -1) return 'D'
+    if (z === 1) return 'F'
+    if (z === -1) return 'B'
+    return null
+  }
+
+  const negate = (v) => [-v[0], -v[1], -v[2]]
+
+  const mapLocalMoveToWorldMove = (move) => {
+    const base = move[0]
+    const isPrime = move.endsWith("'")
+
+    const right = orientation?.right ?? [1, 0, 0]
+    const up = orientation?.up ?? [0, 1, 0]
+    const front = orientation?.front ?? [0, 0, 1]
+
+    const localVec =
+      base === 'R' ? right :
+      base === 'L' ? negate(right) :
+      base === 'U' ? up :
+      base === 'D' ? negate(up) :
+      base === 'F' ? front :
+      base === 'B' ? negate(front) :
+      null
+
+    const worldBase = localVec ? toWorldFace(localVec) : base
+    return isPrime ? `${worldBase}'` : worldBase
+  }
 
   // 战绩（本地存储）
   useEffect(() => {
@@ -140,8 +174,10 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
   const handleMove = (move) => {
     if (isAnimating) return
 
+    const worldMove = mapLocalMoveToWorldMove(move)
+
     setIsAnimating(true)
-    const newCube = performMove(cubeState, move)
+    const newCube = performMove(cubeState, worldMove)
     setMoveHistory([...moveHistory, move])
     if (hasTimerStarted) {
       setSolveMoveCount((c) => c + 1)
@@ -149,8 +185,8 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
 
     // 启动动画
     setAnimationData({
-      face: move.replace("'", ""),
-      isPrime: move.endsWith("'"),
+      face: worldMove.replace("'", ""),
+      isPrime: worldMove.endsWith("'"),
       progress: 0,
       duration: 500, // 500ms 动画
       startTime: Date.now(),
@@ -549,6 +585,7 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
       <div className="info-section">
         <p>💡 提示：</p>
         <ul>
+          <li>双击正中小方块设置正面</li>
           <li>触摸/拖动鼠标旋转视角</li>
           <li>双指/滚轮缩放</li>
           <li>技术支持：zhouxnli@szu.edu.cn</li>

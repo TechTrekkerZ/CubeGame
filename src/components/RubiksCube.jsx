@@ -13,7 +13,7 @@ const COLORS = {
 }
 
 // 创建单个小方块
-function Cubelet({ position, colors }) {
+function Cubelet({ position, colors, onDoubleClick }) {
   const geometry = useMemo(() => new THREE.BoxGeometry(0.9, 0.9, 0.9), [])
 
   const materials = useMemo(() => {
@@ -58,8 +58,21 @@ function Cubelet({ position, colors }) {
       material={materials}
       castShadow
       receiveShadow
+      onDoubleClick={onDoubleClick}
     />
   )
+}
+
+const getFaceCenterNormal = (position) => {
+  const [x, y, z] = position
+  // 面中心块：一个坐标为 ±1，另外两个为 0
+  if (x === 1 && y === 0 && z === 0) return [1, 0, 0]
+  if (x === -1 && y === 0 && z === 0) return [-1, 0, 0]
+  if (x === 0 && y === 1 && z === 0) return [0, 1, 0]
+  if (x === 0 && y === -1 && z === 0) return [0, -1, 0]
+  if (x === 0 && y === 0 && z === 1) return [0, 0, 1]
+  if (x === 0 && y === 0 && z === -1) return [0, 0, -1]
+  return null
 }
 
 // 获取某个面上需要旋转的cubelets
@@ -92,7 +105,7 @@ const getFaceCubelets = (face, cubeState) => {
   return faceCubelets
 }
 
-export default function RubiksCube({ cubeState, isAnimating, animationData }) {
+export default function RubiksCube({ cubeState, isAnimating, animationData, onSetLogicalFront }) {
   const faceGroupRef = useRef()
 
   // 让动画旋转方向与 cubeLogic 的 MOVE_CONFIG 保持一致：
@@ -153,11 +166,17 @@ export default function RubiksCube({ cubeState, isAnimating, animationData }) {
                 />
               )
             } else {
+              const normal = getFaceCenterNormal(cubelet.position)
               staticCubeletsArr.push(
                 <Cubelet
                   key={cubelet.id}
                   position={cubelet.position}
                   colors={cubelet.colors}
+                  onDoubleClick={(e) => {
+                    if (!normal) return
+                    e.stopPropagation()
+                    onSetLogicalFront?.(normal)
+                  }}
                 />
               )
             }
@@ -171,11 +190,17 @@ export default function RubiksCube({ cubeState, isAnimating, animationData }) {
           for (let z = 0; z < 3; z++) {
             if (x === 1 && y === 1 && z === 1) continue
             const cubelet = cubeState[x][y][z]
+            const normal = getFaceCenterNormal(cubelet.position)
             staticCubeletsArr.push(
               <Cubelet
                 key={cubelet.id}
                 position={cubelet.position}
                 colors={cubelet.colors}
+                onDoubleClick={(e) => {
+                  if (!normal) return
+                  e.stopPropagation()
+                  onSetLogicalFront?.(normal)
+                }}
               />
             )
           }
