@@ -585,7 +585,7 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
       <div className="info-section">
         <p>💡 提示：</p>
         <ul>
-          <li>双击正中小方块设置正面</li>
+          <li>双击正中的小方块设置正面</li>
           <li>触摸/拖动鼠标旋转视角</li>
           <li>双指/滚轮缩放</li>
           <li>技术支持：zhouxnli@szu.edu.cn</li>
