@@ -89,6 +89,34 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
     }, 100)
   }
 
+  const startGame = () => {
+    if (isAnimating) return
+
+    setIsAnimating(true)
+    const { cube: scrambledCube, sequence } = scrambleCube(initialCube, 20)
+    setScrambleSequence(sequence)
+    setMoveHistory([])
+    setRoundStartCube(scrambledCube)
+    // 直接设置最终状态，跳过动画
+    setCubeState(scrambledCube)
+    setIsSolved(false)
+
+    setShowTimerActions(false)
+    setSolveMoveCount(0)
+    setHasSavedResult(false)
+    setIsTimerFinished(false)
+    setTimer(0)
+
+    const now = Date.now()
+    setStartTime(now)
+    setIsTimerRunning(true)
+    setHasTimerStarted(true)
+
+    setTimeout(() => {
+      setIsAnimating(false)
+    }, 100)
+  }
+
   const reset = () => {
     setIsAnimating(true)
     setCubeState(initialCube)
@@ -154,7 +182,7 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
 
     // 初始态：直接开始
     if (timer === 0 && !isTimerRunning && !isTimerFinished) {
-      startOrResumeTimer()
+      startGame()
       return
     }
 
@@ -238,8 +266,81 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
   return (
     <div className="control-panel">
       {/* <h2>魔方控制</h2> */}
+      {/* 计时器显示 */}
+      <div
+        className="timer-section"
+        role="button"
+        tabIndex={0}
+        onClick={handleTimerClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') handleTimerClick()
+        }}
+        aria-label={timer === 0 && !isTimerRunning && !isTimerFinished ? '开始游戏' : '计时选项'}
+      >
+        <div className={`timer ${isTimerRunning ? 'running' : ''}`}>
+          {timer === 0 && !isTimerRunning && !isTimerFinished ? '开始游戏' : formatTime(timer)}
+        </div>
+
+        {showTimerActions && (
+          <div className="timer-actions" onClick={(e) => e.stopPropagation()}>
+            {!isTimerFinished ? (
+              <>
+                <button
+                  type="button"
+                  className="timer-action-btn"
+                  onClick={() => {
+                    if (isTimerRunning) pauseTimer()
+                    else {
+                      setShowTimerActions(false)
+                      startOrResumeTimer()
+                    }
+                  }}
+                >
+                  {isTimerRunning ? '暂停' : '继续'}
+                </button>
+                <button
+                  type="button"
+                  className="timer-action-btn timer-action-finish"
+                  onClick={finishTimer}
+                >
+                  完成
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="timer-action-btn timer-action-save"
+                  onClick={saveRecord}
+                >
+                  {hasSavedResult ? '已保存' : '保存战绩'}
+                </button>
+                <button
+                  type="button"
+                  className="timer-action-btn timer-action-finish"
+                  onClick={() => restartNewRound('same')}
+                >
+                  再来一次
+                </button>
+                <button
+                  type="button"
+                  className="timer-action-btn"
+                  onClick={() => restartNewRound('newScramble')}
+                >
+                  下一关
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
+        {isTimerFinished && (
+          <div className="solved-message">🎉 恭喜完成！</div>
+        )}
+      </div>
+
       <div className="moves-section">
-        <h3>旋转操作</h3>
+        {/* <h3>旋转操作</h3> */}
         <div className="moves-pad">
           <button
             onClick={() => handleMove('U')}
@@ -355,79 +456,6 @@ export default function ControlPanel({ cubeState, setCubeState, setIsAnimating, 
             <span className="move-label">{MOVES["D'"]}</span>
           </button>
         </div>
-      </div>
-
-      {/* 计时器显示 */}
-      <div
-        className="timer-section"
-        role="button"
-        tabIndex={0}
-        onClick={handleTimerClick}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') handleTimerClick()
-        }}
-        aria-label={timer === 0 && !isTimerRunning && !isTimerFinished ? '开始计时' : '计时选项'}
-      >
-        <div className={`timer ${isTimerRunning ? 'running' : ''}`}>
-          {timer === 0 && !isTimerRunning && !isTimerFinished ? '开始计时' : formatTime(timer)}
-        </div>
-
-        {showTimerActions && (
-          <div className="timer-actions" onClick={(e) => e.stopPropagation()}>
-            {!isTimerFinished ? (
-              <>
-                <button
-                  type="button"
-                  className="timer-action-btn"
-                  onClick={() => {
-                    if (isTimerRunning) pauseTimer()
-                    else {
-                      setShowTimerActions(false)
-                      startOrResumeTimer()
-                    }
-                  }}
-                >
-                  {isTimerRunning ? '暂停' : '继续'}
-                </button>
-                <button
-                  type="button"
-                  className="timer-action-btn timer-action-finish"
-                  onClick={finishTimer}
-                >
-                  完成
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  className="timer-action-btn timer-action-save"
-                  onClick={saveRecord}
-                >
-                  {hasSavedResult ? '已保存' : '保存战绩'}
-                </button>
-                <button
-                  type="button"
-                  className="timer-action-btn timer-action-finish"
-                  onClick={() => restartNewRound('same')}
-                >
-                  再来一次
-                </button>
-                <button
-                  type="button"
-                  className="timer-action-btn"
-                  onClick={() => restartNewRound('newScramble')}
-                >
-                  下一关
-                </button>
-              </>
-            )}
-          </div>
-        )}
-
-        {isTimerFinished && (
-          <div className="solved-message">🎉 恭喜完成！</div>
-        )}
       </div>
 
       {records.length > 0 && (
